@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-extensions = "*"
+ccxt = "*"
+factory-boy = "*"
+"psycopg2-binary" = "*"
+django-environ = "*"
+cryptowatch-client = "*"
+bpython = "*"
+pyinquirer = "*"
+
+[dev-packages]
