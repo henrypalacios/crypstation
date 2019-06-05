@@ -13,5 +13,6 @@ django-environ = "*"
 cryptowatch-client = "*"
 bpython = "*"
 pyinquirer = "*"
+celery = "*"
 
 [dev-packages]

@@ -51,7 +51,8 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    'src.exchanges.apps.ExchangesConfig'
+    'src.exchanges.apps.ExchangesConfig',
+    'src.orders.apps.OrdersConfig'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -128,6 +129,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+CELERY_BROKER_URL = f"amqp://%s:%s@%s/%s" % (env('RABBITMQ_USER'), env('RABBITMQ_PASS'), env('RABBITMQ_HOST'),
+                                             env('RABBITMQ_VHOST'))
 
 LOGGING = {
     'version': 1,
