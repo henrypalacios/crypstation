@@ -4,6 +4,7 @@ from celery import task
 from django.core.mail import send_mail
 
 from src.exchanges.models import Market
+from src.orders.models import AllowedTrade
 
 logger = logging.getLogger(__name__)
 
@@ -11,12 +12,10 @@ logger = logging.getLogger(__name__)
 @task
 def raise_order(data):
     """
-    Task to send an e-mail notification when an order is
-    successfully created.
-    :type data: dict {'market': <Market.symbol:string>, 'price': <float>, }
+    Task to create order.
+    :type data: dict {'market': <Market.symbol:string>, 'side': <buy|sell:string>, price': <float>}
     """
-    #order = Order.objects.get(id=order_id)
-    market = Market.objects.filter(exchange__account__isnull=False, symbol=data.get('market')).first()
-    logger.info(f"order: {market.exchange}-{market.symbol}-{data.get('price')}'")
+    AllowedTrade.objects.fire_order(data['market'], data['side'], data['price'])
+    logger.info(f"order: {data}'")
 
-    return market
+    return data

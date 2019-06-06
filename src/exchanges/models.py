@@ -3,6 +3,7 @@ import datetime
 import pytz
 
 from django.db import models
+from django.contrib.auth.models import User
 
 from src.exchanges.managers import MarketOHLCVManager, MarketManager
 
@@ -15,8 +16,8 @@ class Exchange(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True, auto_now=True)
 
     @property
-    def instance(self):
-        return eval('ccxt.%s()' % self.id_name)
+    def instance(self, params={}):
+        return eval('ccxt.%s(%s)' % (self.id_name, params))
 
     def get_markets(self):
         return self.instance.load_markets()
@@ -26,8 +27,14 @@ class Account(models.Model):
     apiKey = models.CharField(max_length=255)
     secret = models.CharField(max_length=255)
     password = models.CharField(max_length=255, null=True)
-    uid = models.CharField(max_length=255, null=True)
+    uid = models.OneToOneField(User, on_delete=models.CASCADE)
     exchange = models.ForeignKey('Exchange', related_name='account', on_delete=models.CASCADE)
+
+    def set_apikey(self, instance_api):
+        instance_api.apiKey = self.apiKey
+        instance_api.secret = self.secret
+
+        return instance_api
 
 
 class Market(models.Model):
@@ -58,6 +65,13 @@ class Market(models.Model):
     def conver_datetime_to_timestamp(self, exchange_api: ccxt.Exchange, datetime):
         return exchange_api.parse8601(datetime)
 
+    def create_order(self, account: Account, side, price, type_order='market', amount=None, params={}):
+        exchange_api = account.set_apikey(self.exchange_api)
+
+        order = exchange_api.create_order(self.symbol, type_order, side, amount, price, params)
+
+        return order
+
 
 class MarketOHLCV(models.Model):
     """ For default represent the time frame the 1 minute"""
@@ -71,8 +85,3 @@ class MarketOHLCV(models.Model):
     volume = models.FloatField()
 
     objects = MarketOHLCVManager()
-
-
-
-
-
