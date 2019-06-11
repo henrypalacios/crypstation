@@ -129,6 +129,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/storage/'
+
 CELERY_BROKER_URL = f"amqp://%s:%s@%s/%s" % (env('RABBITMQ_USER'), env('RABBITMQ_PASS'), env('RABBITMQ_HOST'),
                                              env('RABBITMQ_VHOST'))
 

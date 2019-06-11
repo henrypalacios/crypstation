@@ -1,20 +1,27 @@
 from django.db import models
 
-from src.exchanges.models import Market
+from src.exchanges.models import Market, Account
 
 
-class AllowedTradeManager(models.Manager):
+class AutomaticTraderManager(models.Manager):
     def fire_order(self, market, price, side):
         market = Market.objects.get(symbol=market)
         traders = self.filter(market=market)
 
         for trader in traders:
-            market.create_order(trader.account, side, price)
+            market.put_order_exchange(trader.account, side, price)
 
 
-class AllowedTrade(models.Model):
-    account = models.ForeignKey('Account', related_name='allowed_trades', on_delete=models.CASCADE)
-    market = models.ForeignKey('Market', related_name='accounts', on_delete=models.CASCADE)
+class AutomaticTrader(models.Model):
+    AMOUNT_CHOICES = {
+        'sell': 'first_pair_amount',
+        'buy': 'second_pair_amount'
+    }
 
-    objects = AllowedTradeManager()
+    account = models.ForeignKey(Account, related_name='allowed_trades', on_delete=models.CASCADE)
+    market = models.ForeignKey(Market, related_name='accounts', on_delete=models.CASCADE)
+    first_pair_amount = models.FloatField()
+    second_pair_amount = models.FloatField()
+
+    objects = AutomaticTraderManager()
 

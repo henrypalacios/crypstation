@@ -15,12 +15,11 @@ class Exchange(models.Model):
     created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     updated_at = models.DateTimeField(blank=True, null=True, auto_now=True)
 
-    @property
-    def instance(self, params={}):
+    def api_instance(self, params={}):
         return eval('ccxt.%s(%s)' % (self.id_name, params))
 
     def get_markets(self):
-        return self.instance.load_markets()
+        return self.api_instance().load_markets()
 
 
 class Account(models.Model):
@@ -30,11 +29,22 @@ class Account(models.Model):
     uid = models.OneToOneField(User, on_delete=models.CASCADE)
     exchange = models.ForeignKey('Exchange', related_name='account', on_delete=models.CASCADE)
 
-    def set_apikey(self, instance_api):
-        instance_api.apiKey = self.apiKey
-        instance_api.secret = self.secret
+    def get_private_instance(self):
+        api_exchange = self.exchange.api_instance({'apiKey': self.apiKey, 'secret': self.secret})
 
-        return instance_api
+        return api_exchange
+
+    # @classmethod
+    # def private_instance_api(self, user_id, exchange_name):
+    #
+    #     return instance_api
+
+    def put_order_exchange(self, market: 'Market', side, price, amount, type_order='market', params={}):
+        exchange_api = market.exchange_api(self.apiKey, self.secret)
+
+        order = exchange_api.create_order(market.symbol, type_order, side, amount, price, params)
+
+        return order
 
 
 class Market(models.Model):
@@ -46,15 +56,19 @@ class Market(models.Model):
 
     FROM_DATE = datetime.datetime(2018, 1, 1, tzinfo=pytz.utc)
 
-    @property
-    def exchange_api(self):
-        return self.exchange.instance
+    def exchange_api(self, api_key=None, secret=None):
+        params = {}
+        if api_key:
+            params.update({'apiKey': api_key})
+            params.update({'secret': secret})
+
+        return self.exchange.api_instance(params)
 
     def fetch_ohlcv_history(self, timeframe='1m', from_datetime=None, from_timestamp=None, limit=500):
-        ex_api = self.exchange_api
+        ex_api = self.exchange_api()
 
         if from_datetime:
-            from_timestamp = self.conver_datetime_to_timestamp(ex_api, from_datetime)
+            from_timestamp = self.convert_datetime_to_timestamp(ex_api, from_datetime)
         elif not from_timestamp:
             raise ValueError('It\'s necessary specified: from_datetime or from_timestamp')
 
@@ -62,15 +76,8 @@ class Market(models.Model):
 
         return ohlcvs
 
-    def conver_datetime_to_timestamp(self, exchange_api: ccxt.Exchange, datetime):
+    def convert_datetime_to_timestamp(self, exchange_api: ccxt.Exchange, datetime):
         return exchange_api.parse8601(datetime)
-
-    def create_order(self, account: Account, side, price, type_order='market', amount=None, params={}):
-        exchange_api = account.set_apikey(self.exchange_api)
-
-        order = exchange_api.create_order(self.symbol, type_order, side, amount, price, params)
-
-        return order
 
 
 class MarketOHLCV(models.Model):

@@ -1,4 +1,5 @@
 import datetime
+import ccxt
 import pytz
 from unittest import mock
 
@@ -7,8 +8,33 @@ from django.core.management import call_command
 
 from .utils import parse_datetime
 from . import factories as factory
-from .factories import ExchangeFactory, MarketFactory, MarketOHLCVFactory
+from .factories import ExchangeFactory, MarketFactory, MarketOHLCVFactory, AccountFactory
 from .models import Market, Exchange, MarketOHLCV
+
+
+class ExchangeTest(TestCase):
+    def setUp(self):
+        self.kraken = ExchangeFactory.create(id_name='kraken')
+        self.market = MarketFactory.create(symbol='BTC/USD', exchange=self.kraken)
+
+    def test_get_api_instance(self):
+        api = self.kraken.api_instance()
+
+        self.assertIsInstance(api, ccxt.Exchange)
+
+    def test_get_api_instance_with_parameters(self):
+        api_key = 'KEY'
+        secret = 'CODE'
+        rate_limit = True
+        api = self.kraken.api_instance({
+            'apiKey': api_key,
+            'secret': secret,
+            'enableRateLimit': rate_limit,
+        })
+
+        self.assertEquals(api.apiKey, api_key)
+        self.assertEquals(api.secret, secret)
+        self.assertEquals(api.enableRateLimit, rate_limit)
 
 
 class MarketTest(TestCase):
@@ -31,7 +57,7 @@ class MarketTest(TestCase):
         datetime = '2015-01-01 00:00:00'
         expected_timestamp = 1420070400000
 
-        timestamp = market.conver_datetime_to_timestamp(market.exchange_api, datetime)
+        timestamp = market.convert_datetime_to_timestamp(market.exchange_api(), datetime)
 
         self.assertEqual(expected_timestamp, timestamp)
 
@@ -107,3 +133,21 @@ class UtilsTest(TestCase):
         parse = parse_datetime(unix_time, has_milliseconds=False)
 
         self.assertEqual(date, parse)
+
+
+class AccountTest(TestCase):
+    def setUp(self):
+        self.kraken = ExchangeFactory.create(id_name='kraken')
+        self.market = MarketFactory.create(symbol='BTC/USD', exchange=self.kraken)
+
+    @mock.patch('src.exchanges.models.Market.exchange_api')
+    def test_put_order_exchange(self, MockExchangeApi):
+        account = AccountFactory.create(exchange=self.kraken)
+        order_id = 123
+        MockExchangeApi.return_value.create_order.return_value = order_id
+
+
+        order = account.put_order_exchange(self.market, side='buy', price=800, amount=100, type_order='market',
+                                           params={'test': True})
+
+        self.assertEquals(order_id, order)
