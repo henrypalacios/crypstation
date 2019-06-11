@@ -14,5 +14,6 @@ cryptowatch-client = "*"
 bpython = "*"
 pyinquirer = "*"
 celery = "*"
+gunicorn = "*"
 
 [dev-packages]
