@@ -131,8 +131,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+#  Indicate where the static files should be placed.
+#  This is necessary so that Nginx can handle requests for these items
+STATIC_ROOT = os.path.join(ROOT_DIR, 'static/')
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/storage/'
 
 CELERY_BROKER_URL = f"amqp://%s:%s@%s/%s" % (env('RABBITMQ_USER'), env('RABBITMQ_PASS'), env('RABBITMQ_HOST'),
