@@ -173,6 +173,12 @@ LOGGING = {
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
             # Avoid double logging because of root logger
             'propagate': True,
-        }
+        },
+        'src.orders': {
+            'handlers': ['console', 'info_file_handler'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            # Avoid double logging because of root logger
+            'propagate': True,
+        },
     }
 }

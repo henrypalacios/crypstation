@@ -25,3 +25,15 @@ class AutomaticTrader(models.Model):
 
     objects = AutomaticTraderManager()
 
+
+class AlertTrade(models.Model):
+    ORDERS = (
+        ('buy', 'BUY'),
+        ('sell', 'SELL')
+    )
+
+    symbol_market = models.CharField(max_length=10)
+    order_type = models.CharField(max_length=3, choices=ORDERS)
+    price = models.FloatField()
+    strategy = models.PositiveIntegerField(default=1)
+
