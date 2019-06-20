@@ -1,0 +1,31 @@
+{% extends '../app.html' %}
+
+{% block main %}
+  <section id="main">
+    <div class="container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Symbol</th>
+            <th>Order_type</th>
+            <th>Price</th>
+            <th>Strategy</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alert in alerts %}
+            <tr>
+              <td>{{ alert.id }}</td>
+              <td>{{ alert.symbol_market }}</td>
+              <td>{{ alert.order_type }}</td>
+              <td>{{ alert.price }}</td>
+              <td>{{ alert.strategy }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}
+

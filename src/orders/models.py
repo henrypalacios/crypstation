@@ -33,7 +33,7 @@ class AlertTrade(models.Model):
     )
 
     symbol_market = models.CharField(max_length=10)
-    order_type = models.CharField(max_length=3, choices=ORDERS)
+    order_type = models.CharField(max_length=5, choices=ORDERS)
     price = models.FloatField()
     strategy = models.PositiveIntegerField(default=1)
-
+    created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)

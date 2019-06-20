@@ -1,0 +1,7 @@
+admin/
+django_extensions/
+
+# But not these...
+!.gitignore
+
+
