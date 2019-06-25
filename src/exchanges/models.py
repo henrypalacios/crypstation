@@ -15,6 +15,9 @@ class Exchange(models.Model):
     created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     updated_at = models.DateTimeField(blank=True, null=True, auto_now=True)
 
+    def __str__(self):
+        return f'{self.id_name}[{self.pk}]'
+
     def api_instance(self, params={}):
         return eval('ccxt.%s(%s)' % (self.id_name, params))
 
@@ -25,9 +28,12 @@ class Exchange(models.Model):
 class Account(models.Model):
     apiKey = models.CharField(max_length=255)
     secret = models.CharField(max_length=255)
-    password = models.CharField(max_length=255, null=True)
-    uid = models.OneToOneField(User, on_delete=models.CASCADE)
+    password = models.CharField(max_length=255, null=True, blank=True)
+    uid = models.ForeignKey(User, on_delete=models.CASCADE)
     exchange = models.ForeignKey('Exchange', related_name='account', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '%s-%s' % (self.uid, self.exchange.id_name)
 
     def get_private_instance(self):
         api_exchange = self.exchange.api_instance({'apiKey': self.apiKey, 'secret': self.secret})
@@ -55,6 +61,9 @@ class Market(models.Model):
     objects = MarketManager()
 
     FROM_DATE = datetime.datetime(2018, 1, 1, tzinfo=pytz.utc)
+
+    def __str__(self):
+        return '%s-%s' % (self.exchange.id_name, self.symbol)
 
     def exchange_api(self, api_key=None, secret=None):
         params = {}
