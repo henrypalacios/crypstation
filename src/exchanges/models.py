@@ -4,7 +4,6 @@ import pytz
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.forms import PasswordInput
 
 from src.exchanges.managers import MarketOHLCVManager, MarketManager
 
@@ -27,9 +26,9 @@ class Exchange(models.Model):
 
 
 class Account(models.Model):
-    apiKey = models.CharField(max_length=255, widget=PasswordInput)
-    secret = models.CharField(max_length=255, widget=PasswordInput)
-    password = models.CharField(max_length=255, null=True, blank=True, widget=PasswordInput)
+    apiKey = models.CharField(max_length=255)
+    secret = models.CharField(max_length=255)
+    password = models.CharField(max_length=255, null=True, blank=True)
     uid = models.ForeignKey(User, on_delete=models.CASCADE)
     exchange = models.ForeignKey('Exchange', related_name='account', on_delete=models.CASCADE)
 
