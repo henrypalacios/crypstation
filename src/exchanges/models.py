@@ -22,6 +22,10 @@ class Exchange(models.Model):
         return eval('ccxt.%s(%s)' % (self.id_name, params))
 
     def get_markets(self):
+        """ ccxt.{exchange <string>}.load_markets()
+
+        :return:  dict
+        """
         return self.api_instance().load_markets()
 
 

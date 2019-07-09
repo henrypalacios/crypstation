@@ -12,6 +12,24 @@ from .factories import ExchangeFactory, MarketFactory, MarketOHLCVFactory, Accou
 from .models import Market, Exchange, MarketOHLCV
 
 
+class AccountTest(TestCase):
+    def setUp(self):
+        self.kraken = ExchangeFactory.create(id_name='kraken')
+        self.market = MarketFactory.create(symbol='BTC/USD', exchange=self.kraken)
+
+    @mock.patch('src.exchanges.models.Market.exchange_api')
+    def test_put_order_exchange(self, MockExchangeApi):
+        account = AccountFactory.create(exchange=self.kraken)
+        order_id = 123
+        MockExchangeApi.return_value.create_order.return_value = order_id
+
+
+        order = account.put_order_exchange(self.market, side='buy', price=800, amount=100, type_order='market',
+                                           params={'test': True})
+
+        self.assertEquals(order_id, order)
+
+
 class ExchangeTest(TestCase):
     def setUp(self):
         self.kraken = ExchangeFactory.create(id_name='kraken')
@@ -133,21 +151,3 @@ class UtilsTest(TestCase):
         parse = parse_datetime(unix_time, has_milliseconds=False)
 
         self.assertEqual(date, parse)
-
-
-class AccountTest(TestCase):
-    def setUp(self):
-        self.kraken = ExchangeFactory.create(id_name='kraken')
-        self.market = MarketFactory.create(symbol='BTC/USD', exchange=self.kraken)
-
-    @mock.patch('src.exchanges.models.Market.exchange_api')
-    def test_put_order_exchange(self, MockExchangeApi):
-        account = AccountFactory.create(exchange=self.kraken)
-        order_id = 123
-        MockExchangeApi.return_value.create_order.return_value = order_id
-
-
-        order = account.put_order_exchange(self.market, side='buy', price=800, amount=100, type_order='market',
-                                           params={'test': True})
-
-        self.assertEquals(order_id, order)

@@ -13,10 +13,10 @@ class AutomaticTraderAdmin(admin.ModelAdmin):
 
 @admin.register(AlertTrade)
 class AlertTradeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'symbol_market', 'order_type', 'price', 'strategy', 'created_at')
+    list_display = ('pk', 'symbol_market', 'order_side', 'price', 'strategy', 'created_at')
 
-    list_filter = ('order_type', 'strategy')
-    search_fields = ('symbol_market', 'body')
+    list_filter = ('order_side', 'strategy', 'symbol_market')
+    #search_fields = ('symbol_market')
     #raw_id_fields = ('author',)
     # prepopulated_fields = {'slug': ('title',)}
     # date_hierarchy = 'publish'
