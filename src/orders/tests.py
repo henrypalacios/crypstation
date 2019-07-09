@@ -1,5 +1,6 @@
 from unittest import mock
 
+from django.core import mail
 from django.test import TestCase
 
 from src.exchanges.factories import ExchangeFactory, MarketFactory, AccountFactory
@@ -78,3 +79,17 @@ class OrderTest(TestCase):
         Order.objects.put_order_in_exchange(account, self.market, 'buy', '7000', 0.1, "TestTrade[123]")
 
         self.assertEquals(id_order, Order.objects.first().id_order)
+
+    @mock.patch('ccxt.kraken.create_order')
+    def test_create_order_sends_email(self, MockAPI):
+        #TODO
+        account = AccountFactory.create(exchange=self.kraken)
+        id_order = 'ODZGVT-BPBYV-X64OTL'
+        MockAPI.return_value = {'id': id_order}
+
+        with self.assertLogs('src.orders.tasks', level='INFO') as cm:
+            Order.objects.put_order_in_exchange(account, self.market, 'buy', '7000', 0.1, "TestTrade[123]")
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, 'Crypstation')
+        #self.assertGreaterEqual(len(cm.output), 1)

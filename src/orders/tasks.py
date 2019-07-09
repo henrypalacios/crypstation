@@ -27,6 +27,7 @@ def send_notification(email, side, market, price, quantity):
     subject = "Crypstation"
     to = [email, ]
     from_email = "crypstation@gmail.com"
+    logger.info(email, side, market, price, quantity)
     message = get_template("email/put_order.html").render({'email': email, 'side': side, 'market': market, 'price': price,
                                                       'quantity': quantity})
     email = EmailMessage(subject, message, bcc=to, from_email=from_email)

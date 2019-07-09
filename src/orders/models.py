@@ -56,8 +56,6 @@ class OrderManager(models.Manager):
         self.create(id_order=response['id'], account=account, market=market, order_side=side,
                     quantity=amount, price=price)
 
-        print(account.uid.email, side, f'{market.exchange.name}-{market.symbol}', price, amount)
-        exit()
         send_notification.delay(account.uid.email, side, f'{market.exchange.name}-{market.symbol}', price, amount)
 
 
