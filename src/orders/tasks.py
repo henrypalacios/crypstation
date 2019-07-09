@@ -16,7 +16,7 @@ def raise_order(data):
     Task to create order.
     :type data: dict {'market': <BTC/USD:string>, 'side': <buy|sell:string>, price': <float>}
     """
-    AlertTrade.objects.create(symbol_market=data['market'], order_type=data['side'], price=data['price'])
+    AlertTrade.objects.create(symbol_market=data['market'], order_side=data['side'], price=data['price'])
     logger.info(f"raise_order({data})'")
 
     return data
