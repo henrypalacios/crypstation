@@ -39,6 +39,7 @@ class AlertTrade(models.Model):
     price = models.FloatField()
     strategy = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
+    automatically_executed = models.BooleanField(default=False)
 
 
 class OrderManager(models.Manager):
